@@ -15,18 +15,20 @@ namespace Geo_coding_addresses
         {
             //serialize
             List<Location> locations = new List<Location>();
+            List<Location> destLocations  = new List<Location>();
 
-            using (System.IO.StreamReader reader = new StreamReader(@"Locations.json"))
+            using (System.IO.StreamReader reader = new StreamReader(@"DCBPM_LocationMissingRecords.json"))
             {
                 string jsonString = reader.ReadToEnd();
-
                 locations = JsonConvert.DeserializeObject<List<Location>>(jsonString);
-
                 // call the api using the locations
             }
 
+            var startIndex = 0;
+            var lastIndex = 35;
+
             //call api
-            for (int i = 100; i < 110; i++)
+            for (int i = startIndex; i < lastIndex; i++)
             {
                 // Create a request for the URL.   
                 WebRequest request = WebRequest.Create("https://www.latlong.net/_spm4.php");
@@ -92,15 +94,18 @@ namespace Geo_coding_addresses
 
                     // Display the content.  
                     Console.WriteLine(responseFromServer);
+                    destLocations.Add(locations[i]);
+                    
                 }
 
                 // Close the response.  
                 response.Close();
             }
 
-            string jsonOutput = JsonConvert.SerializeObject(locations);
+            string jsonOutput = JsonConvert.SerializeObject(destLocations);
 
-            using (StreamWriter stream = new StreamWriter("LocationOutput.json"))
+            var filename = "LocationFound_index_from_" + startIndex +"_"+lastIndex + ".json";
+            using (StreamWriter stream = new StreamWriter(filename))
             {
                 stream.WriteLine(jsonOutput);
             }
